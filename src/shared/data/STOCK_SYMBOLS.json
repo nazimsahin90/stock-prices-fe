@@ -1,0 +1,8 @@
+[
+	{ "id": 0, "name": "AAPL" },
+	{ "id": 1, "name": "ACN" },
+	{ "id": 2, "name": "AMZN" },
+	{ "id": 3, "name": "MCD" },
+	{ "id": 4, "name": "MSFT" },
+	{ "id": 5, "name": "TSLA" }
+]

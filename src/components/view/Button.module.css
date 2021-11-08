@@ -1,0 +1,17 @@
+.button {
+	min-width: 100px;
+	font: inherit;
+	background: #dddddd;
+	padding: 0.3rem 0.6rem;
+	cursor: pointer;
+	border-radius: 4px;
+	margin: 4px;
+  }
+  
+.button:hover {
+	background: #eeeeee;
+	border-color: hsl(332, 85%, 45%);
+	font-weight: bold;
+}
+
+  

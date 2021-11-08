@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+.disableHack {
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+.h5 {
+  text-align: center;
+}
