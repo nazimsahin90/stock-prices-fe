@@ -23,7 +23,6 @@ const SearchFilter = ({
 	})
 
 	function toggleDropdownVisibility(e) {
-		// console.dir([e.target, ref.current]);
 		setOpen(e && e.target === inputRef.current); // evaluate dropdown state as false when clicked outside of dropdown target
 	}
 
@@ -38,18 +37,16 @@ const SearchFilter = ({
 	}
 
 	function selectOption(option) {
-		setQuery(''); /* once value selected show the value instead of query */
+		setQuery(''); // once value selected show the value instead of query
 		onChange(option);
 		setOpen(false);
-		// create chart legend 
-		httpCtx.onSelectStock(option.name);
+		httpCtx.onSelectStock(option.name); // emit select event to shared service
 	}
 
   	return (
 		<div className="dropdown">
 			<div className="control">
 				<div className="selected-value">
-					{/* {value ? value[label] : prompt} // show item when selected */}
 					<input type="text" 
 						ref={inputRef}
 						placeholder={value ? value[label] : prompt}
@@ -65,7 +62,7 @@ const SearchFilter = ({
 			<div className={`options ${open ? "open" : null}`}>
 				{filter(options).map((option) => (
 					<div
-						key={option[id]}
+						key={option[label]}
 						className={`option ${value === option ? "selected" : null}`} /* add option class all of those divs but then if value that is selected  */
 						onClick={() => { selectOption(option) }}>{option[label]}</div> /* whenever dropdown item clicked close dropdown */
 				))}

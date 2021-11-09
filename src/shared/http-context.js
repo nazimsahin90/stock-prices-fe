@@ -7,7 +7,7 @@ const HttpContext = React.createContext({
 	selectedStocks: [], // Using Set() is not helping when removing item(because of mutation)
 	fetchedData: [],
 	isLoading: false,
-	error: null,
+	errorMsg: null,
 	onSelectStock: () => {},
 	onFetchStocks: () => {},
 	onCloseLegend: () => {},
@@ -16,34 +16,42 @@ const HttpContext = React.createContext({
 
 export const HttpContextProvider = (props) => {
 
-	const [selectedStocks, setSelectedStock] = useState([]);
+	const [selectedStocks, setSelectedStocks] = useState([]);
 	const [fetchedData, setFetchedData] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [hasError, setHasError] = useState(false);
+	const [errorMsg, setErrorMsg] = useState(null);
 
-	const handleStockSelection = async (symbol) => { // onSelectStock
-		await fetchStockPrices(symbol);
-		
+	const handleStockSelection = async (symbol) => {
+		if (selectedStocks && !selectedStocks.includes(symbol))
+			await fetchStockPrices(symbol);
 	}
 
 	const handleStockRemoval = (event) => {
 		if (event?.target) {
+			// Remove from selected stocks
 			const key = event.target.getAttribute('id');
-			console.log("key: " + key)
-			const newArry = selectedStocks.filter(item => {
-				console.log("item: " + item)
-				return item !== key;
-			});
-			setSelectedStock(newArry);
-			console.dir(selectedStocks)
-		} else {
-			return;
+			const newArry = selectedStocks.filter(item => item !== key);
+			setSelectedStocks(newArry);
+			// Remove from fetched data
+			const copyFetchedData = [...fetchedData];
+			let newFetchedData = [];
+			copyFetchedData.forEach(element => {
+				let innerArry;
+				if (Array.isArray(element))
+					[ innerArry ] = element;
+				else
+					innerArry = element;
+				newFetchedData.push(innerArry)
+			})
+			const finalFetchData = newFetchedData.filter(element => element.name !== key );
+			setFetchedData(finalFetchData);	
 		}
 	}
-	//setSelectedStock([]);
+
 	const handleStockRemovalAll = (event) => {
 		if (event?.target) {
-			setSelectedStock([]);
+			setFetchedData([]);
+			setSelectedStocks([]);
 		} else {
 			return;
 		}
@@ -52,34 +60,40 @@ export const HttpContextProvider = (props) => {
 	const fetchStockPrices = async (symbol) => {
 		const urlString = URL + symbol;
 		setIsLoading(true);
-		setHasError(false);
+		setErrorMsg('');
 			try {
 				const response = await axios.get(urlString);
-				/* if (response.status !== 200) {
-					throw new Error(response.message);
-				} */
-				updateData(response.data, symbol);
-
+				if (response.status === 200) {
+					updateData(response.data, symbol);
+				}
 		} catch (err) {
-			console.error(err.response.status);
-			setHasError(true);
+			handleError(err, symbol);
 		} finally {
 			setIsLoading(false);
 		}
 	}
 
 	function updateData(data, sym) {
-		const transformedData = data.map(stockData => {
-			return [stockData.timestamp, stockData.price]
-		});
-		setFetchedData(prevData => [...prevData, {name: sym, data: transformedData} ]);
-		setSelectedStock(stocks => {
-			if (!stocks.includes(sym)) {
-				return [...stocks, sym];
-			}
-			else
-				return stocks;
-		});
+		const transformedData = data.map(stockData => [stockData.timestamp, stockData.price]);
+
+		const copyFetchedData = [...fetchedData];
+		copyFetchedData.push([{name: sym, data: transformedData}]);
+		setFetchedData(copyFetchedData);
+
+		const copySelectedStocks = [...selectedStocks];
+		copySelectedStocks.push(sym);
+		setSelectedStocks(copySelectedStocks);
+	}
+
+	function handleError(err, symbol) {
+		if (err.response) {
+			const errStatus = err.response.status
+			if (errStatus === 403)	setErrorMsg(`You are not authorized to fetch '${symbol}'`);
+			else if (errStatus === 404) setErrorMsg(`Requested ${symbol} not found`);
+			else setErrorMsg('Something gone wrong...')
+		} else {
+			setErrorMsg('Unable to reach server...');
+		}
 	}
 
 	return (
@@ -88,7 +102,7 @@ export const HttpContextProvider = (props) => {
 				selectedStocks,
 				fetchedData,
 				isLoading,
-				hasError,
+				errorMsg,
 				onSelectStock: handleStockSelection,
 				onFetchStocks: fetchStockPrices,
 				onCloseLegend: handleStockRemoval,
@@ -97,7 +111,6 @@ export const HttpContextProvider = (props) => {
 			{props.children}
 		</HttpContext.Provider>)
 
-
 }
 
-export default HttpContext; // listen/hook this context from target component
+export default HttpContext;

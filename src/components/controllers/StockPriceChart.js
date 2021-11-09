@@ -16,16 +16,19 @@ const StockPriceChart = () => {
 			type: 'logarithmic'
 		}, */
 		rangeSelector: {
+			enabled: true,
 			allButtonsEnabled: true,
 			buttons: [{
 				type: 'all',
+				text: 'All',
+			}, {
+				count: 21,
+				type: 'day',
 				text: 'Daily',
 			}, {
-				type: 'all',
-				text: 'Weekly',
-			}, {
-				type: 'all',
-				text: 'Monthly',
+				count: 3,
+				type: 'month',
+				text: 'Quarter',
 			}],
 			buttonTheme: {
 				width: 60
@@ -49,27 +52,29 @@ const StockPriceChart = () => {
 	const { fetchedData } = useContext(HttpContext);
 
 	const handleDataUpdate = useCallback(() => {
-		console.log("updating chart....")
-		// Decide if adding or removing performed on search legends
+		let seriesArry = [];
+		fetchedData.forEach(element => {
+			if (Array.isArray(element))
+				seriesArry.push(element[0])
+		});
+		// Arrange chart data and update it with useState hook
 		if (selectedStocks.length > chartLegendList.length) {
 			setChartOptions(prevData => ({
 				...prevData,
-				series: fetchedData
+				series: seriesArry
 			}));
 		} else {
-			// Find the missing legend then remove it from copy of fetchedData
-			const diff = chartLegendList.filter(val => !selectedStocks.includes(val));
-			console.log("diff = " + diff)
-			const copyFetchedData = fetchedData.filter(element => {
-				console.log("element: " + element)
-				console.log("name: " + element.name)
-				return element.name === diff
-			})
-			
-			setChartOptions(prevData => ({
-				...prevData,
-				series: copyFetchedData
-			}));
+			if (fetchedData.length === 0) {
+				setChartOptions(prevData => ({
+					...prevData,
+					series: []
+				}));
+			} else {
+				setChartOptions(prevData => ({
+					...prevData,
+					series: fetchedData
+				}));
+			}
 		}
 		// Alignment of search legend controllers & chart legends 
 		setStockLegendList(selectedStocks);
@@ -77,20 +82,20 @@ const StockPriceChart = () => {
 	
 	// Reference for calling chart data update() when 'selectedStocks' state has changed
 	useEffect(() => {
-		console.log("selectedStocks..." + JSON.stringify(selectedStocks))
-		console.log("stockList... " + JSON.stringify(chartLegendList))
 		// Update when lengths are different
 		if (selectedStocks.length !== chartLegendList.length) {
-			handleDataUpdate(selectedStocks);
+			handleDataUpdate();
 		}
 	}, [selectedStocks]); // no need to add handleDataUpdate as a dependency since react guarantees that they won't change
 
 	return (
-    <HighchartsReact
-      highcharts={Highcharts}
-      constructorType={"stockChart"}
-      options={chartOptions}
-    />
+    <div id="chart">
+      <HighchartsReact
+        highcharts={Highcharts}
+        constructorType={"stockChart"}
+        options={chartOptions}
+      />
+    </div>
   );
 }
 

@@ -8,15 +8,15 @@ const Chart = () => {
 	const httpCtx = useContext(HttpContext)
 	const fetchedData = httpCtx.selectedStocks;
 	const isLoading = httpCtx.isLoading;
-	const hasError = httpCtx.hasError;
+	const errorMsg = httpCtx.errorMsg;
 
 	return (
 		<CardContainer>
 			{fetchedData?.length > 0 && <StockPriceChart />}
 			<h5 style={{ textAlign: "center" }}>
-				{!isLoading && fetchedData?.length === 0 && !hasError && <p>Add stocks to compare historical prices</p>}
+				{!isLoading && fetchedData?.length === 0 && !errorMsg && <p id="add-stocks">Add stocks to compare historical prices</p>}
 				{isLoading && fetchedData?.length === 0 && <p>Fetching prices...</p>}
-				{!isLoading && hasError && <p>Unable to retrieve data...</p>}
+				{!isLoading && errorMsg && <p>{errorMsg}</p>}
 			</h5>
 		</CardContainer>
 	)

@@ -16,12 +16,12 @@ const Search = () => {
 	return (
 		<CardContainer>
 			<div style={{ display: "flex" }}>
-				<div style={{ width: 200}}>
+				<div style={{ width: 250}}>
 					<SearchFilter
 						options={STOCK_SYMBOLS}
 						id="search-dropdown"
 						label="name"
-						prompt="Enter stock symbol..."
+						prompt="Search by symbol.."
 						value={value}
 						onChange={val => setValue(val)} /> {/* Return of on change invoke is a call for setValue */}
 				</div>

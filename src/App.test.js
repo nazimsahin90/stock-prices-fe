@@ -1,17 +1,14 @@
-import { render, screen, queryByAttribute } from '@testing-library/react';
+import { render, queryByAttribute } from '@testing-library/react';
 import "@testing-library/jest-dom/extend-expect";
 import App from './App';
 
 const getById = queryByAttribute.bind(null, 'id');
-const app = render(<App />);
 
-test('Search dropdown filter is present', () => {
-  const searchBar = getById(app.container, 'search-dropdown');
-  expect(searchBar).toBeVisible();
-});
+describe('Smoke test that checks app components are loaded on init', () => {
 
-test('Starting text is present', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/Add stocks to compare historical prices/i);
-  expect(linkElement).toBeInTheDocument();
+  const app = render(<App />);
+  test('Search dropdown filter is present', () => {
+    const searchBar = getById(app.container, 'searchFilter');
+    expect(searchBar).toBeVisible();
+  });
 });
